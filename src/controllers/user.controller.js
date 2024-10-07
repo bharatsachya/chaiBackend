@@ -1,12 +1,16 @@
 import {asyncHandler} from '../utils/asynchandler.js';
-import { upload } from '../middlewares/multer.middleware.js';
 import { User } from '../models/user.models.js';
 import { ApiResponse } from '../utils/ApiRespone.js';
 import { ApiError } from '../utils/ApiHandler.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+
 const registerUser = asyncHandler(async (req,res,next)=>{
-    //get user details from request body
-    const { fullName, email, username, password} = req.body()
+
+
+    // //get user details from request body
+    const { fullName, email, username, password} = req.body;
+    console.log(fullName, email, username, password);
+    
     
     //check validations
     console.log("email: ",email);
@@ -15,7 +19,7 @@ const registerUser = asyncHandler(async (req,res,next)=>{
     }
     
     //check if user already exists
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or:[{email},{username}]
      })
      if(existedUser){
@@ -23,8 +27,9 @@ const registerUser = asyncHandler(async (req,res,next)=>{
      }
     //check for images,coverimage
     console.log(req.files)
-    const avatarLocalPath = await req.files?.avatar[0]?.path;
-    const coverImageLocalPath = await req.files?.coverImage[0]?.path;
+
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage[0]?.path;
     
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar is required");
@@ -39,11 +44,11 @@ const registerUser = asyncHandler(async (req,res,next)=>{
     }
 
     //create user
-    User.create({
+    const user = await User.create({
         email,
         username,
         password,
-        fullname,
+        fullName,
         avatar:avatar.url,
         coverImage:coverImage?.url || "",
     })
@@ -59,6 +64,7 @@ const registerUser = asyncHandler(async (req,res,next)=>{
     }
     //send response
     return res.status(201).json(new ApiResponse(200,"User created successfully",userCreated))
+
 })
 
 export {registerUser};

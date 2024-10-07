@@ -24,7 +24,7 @@ const userSchema = new Schema({
     },
     avatar:{
         type:String,
-        required:false
+        required:true
     },
     coverImage:{
         type:String,
@@ -34,7 +34,7 @@ const userSchema = new Schema({
         type:String,
         required:false
     },
-    fullname:{
+    fullName:{
         type:String,
         required:true,
         trim:true,
