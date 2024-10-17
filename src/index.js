@@ -1,39 +1,36 @@
-import dotenv from 'dotenv';
-import connectDB from './db/index.js'
-import {app} from './app.js';
+import dotenv from "dotenv";
+import connectDB from "./db/index.js";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import userRouter from "./routes/user.routes.js";
+dotenv.config();
 
-dotenv.config(
-    {
-        path: '../env'
-    }
+const app = express();
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
 );
 
-connectDB()
-.then(()=>{
-   app.get('/',(req,res)=>{
-       res.send("Server is running");
-   })
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
+app.use("/api/v1/user", userRouter);
 
-    app.listen(process.env.PORT || 8000,()=>{
-        console.log(`Server is running on port ${process.env.PORT}`);
-    })
-})
-.catch((error)=>{
-    console.log(error);
+connectDB();
+
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
-// (async()=>{
-//     try {
-//         await mongoose.connect(`${process.env.MONGO_URI}/${DB_NAME}`)
-//         app.on(error,(error)=>{
-//            console.log(error);
-//            throw error
-//         })
+const port = process.env.PORT;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
-//          app.listen(process.env.PORT,()=>{
-//             console.log(`Server is running on port ${process.env.PORT}`);
-//          })
-//     } catch (error) {
-//         console.error(error);
-//     }
-// })()
+app.on("error", (error) => {
+  console.error(`Server error: ${error.message}`);
+});
