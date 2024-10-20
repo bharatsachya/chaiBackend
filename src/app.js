@@ -3,6 +3,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 const app = express();
+//router 
+import userRouter from './routes/user.routes.js';
 // app.use(bodyParser.json());
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -18,8 +20,6 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 
-//router 
-import userRouter from './routes/user.routes.js';
 
 app.use("/api/v1/user",userRouter);
 
